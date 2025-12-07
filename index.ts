@@ -1,11 +1,9 @@
 import { Client, Events, GatewayIntentBits, REST, Routes } from 'discord.js';
 
-import { runCodeCommand } from './commands';
+import commands from './commands';
 
 const TOKEN = process.env.TOKEN!
 const CLIENT_ID = process.env.CLIENT_ID!
-
-const commands = [runCodeCommand];
 
 const mustRegister = async () => {
     const rest = new REST({ version: '10' }).setToken(TOKEN);

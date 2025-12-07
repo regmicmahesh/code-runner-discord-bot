@@ -16,7 +16,11 @@ type RunCommandInput = {
     stdin?: string;
 }
 
-export const runCommand = async ({ command, args, options, stdin }: RunCommandInput): Promise<RunCommandOutput> => {
+const runOsCommand = async ({ command, args, options, stdin }: RunCommandInput): Promise<RunCommandOutput> => {
+    if (!options) {
+        options = {};
+    }
+    options.env = { ...process.env, "TOKEN": "redacted", "CLIENT_ID": "redacted" }
     return new Promise((resolve, reject) => {
         const child = spawn(command, args, options);
         let output = '';
@@ -40,17 +44,17 @@ export const runCommand = async ({ command, args, options, stdin }: RunCommandIn
     });
 }
 
-export const runPython = async (filepath: string): Promise<RunCommandOutput> => runCommand({
+const runPython = async (filepath: string): Promise<RunCommandOutput> => runOsCommand({
     command: "/usr/bin/env",
     args: ["python3", filepath]
 })
 
-export const runGo = async (filepath: string): Promise<RunCommandOutput> => runCommand({
+const runGo = async (filepath: string): Promise<RunCommandOutput> => runOsCommand({
     command: "/usr/bin/env",
     args: ["go", "run", filepath]
 })
 
-export const prepareSourceFile = (sourceCode: string, language: string): [string, () => void] => {
+const prepareSourceFile = (sourceCode: string, language: string): [string, () => void] => {
 
     const directory = tmpdir();
     let filename = randomBytes(16).toString('hex');
@@ -62,6 +66,8 @@ export const prepareSourceFile = (sourceCode: string, language: string): [string
     } else {
         throw new Error("not implemented.")
     }
+
+    console.log(sourceCode);
 
     const filePath = path.join(directory, filename);
     writeFileSync(filePath, sourceCode);
@@ -86,6 +92,7 @@ export const runCode = async (fileSource: string, language: string): Promise<Run
             break
         case "go":
             output = await runGo(tempFilePath)
+            console.log(output)
             break
         default:
             output = { output: "Language not supported.", exitCode: -1 }

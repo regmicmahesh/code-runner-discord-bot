@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, LabelBuilder, MessageFlags, ModalBuilder, ModalSubmitInteraction, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextDisplayBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import { runCode } from "./run";
+import { runCode } from "../internal/run";
 
 const executeChat = async (interaction: ChatInputCommandInteraction) => {
     const modal = new ModalBuilder().setCustomId('run-code').setTitle('Run Code Instantly!');
@@ -42,8 +42,7 @@ const executeModalSubmit = async (interaction: ModalSubmitInteraction) => {
     const sourceCode = interaction.fields.getTextInputValue('source');
     const language = interaction.fields.getStringSelectValues('language')[0];
 
-    console.log(language);
-
+    await interaction.deferReply();
 
     const sourceCodeHeadingC = new TextDisplayBuilder().setContent(
         '# Source Code'
@@ -64,7 +63,11 @@ const executeModalSubmit = async (interaction: ModalSubmitInteraction) => {
 
     const replyC = [sourceCodeHeadingC, sourceCodeC, outputHeadingC, outputC]
 
-    await interaction.reply({
+
+    console.log(replyC);
+    console.log(output);
+
+    await interaction.editReply({
         components: replyC,
         flags: MessageFlags.IsComponentsV2
     })
@@ -75,6 +78,6 @@ const data = new SlashCommandBuilder()
     .setDescription("Runs source code of the given programming language.")
 
 
-export const runCodeCommand = {
+export default {
     data, executeChat, executeModalSubmit
 };
